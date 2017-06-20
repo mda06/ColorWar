@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Color War</title>
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+        var canvas = document.getElementById('canvas');
+        var socket = io();
+        var grid = null;
+        var players = null;
+        var gridSize = 30;
+
+        function getMousePos(canvas, evt) {
+          var rect = canvas.getBoundingClientRect();
+          return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+          };
+        }
+
+        canvas.addEventListener('click', function(evt) {
+          var mousePos = getMousePos(canvas, evt);
+          var play = {
+            id:socket.io.engine.id,
+            x:parseInt(mousePos.x / gridSize), 
+            y:parseInt(mousePos.y / gridSize)
+          };
+          socket.emit("play", play);
+        }, false);
+
+        socket.on('initgrid', function(gr){
+          grid = gr;
+          canvas.width = grid.w * gridSize + 1;
+          canvas.height = grid.h * gridSize + 1;
+          drawGrid();
+        });
+
+        //Players
+        socket.on('initplayers', function(pls){
+          players = pls;
+          drawPlayers();
+        });
+        socket.on('addplayer', function(player){
+          players[player.id] = player;
+          drawPlayers();
+        });
+        socket.on('removeplayer', function(id){
+          delete players[id];
+          drawPlayers();
+        });
+
+        socket.on('cellupdate', function(cell){
+          if(cell.x >= 0 && cell.x < grid.w && cell.y >= 0 && cell.y < grid.h) {
+            grid.cells[cell.x][cell.y] = cell;
+            drawGrid();
+          }
+        });
+
+        function drawPlayers() {
+          if(players == null || players == undefined) return;
+          $('#players').html('');
+          for(var key in players) {
+              $('#players').append('<li>' + players[key].name + '</li>');
+          };
+        }
+
+        function drawGrid() {
+          if(grid == null || grid == undefined) return;
+          var ctx = canvas.getContext("2d");
+          //Background
+          ctx.fillStyle = "#BDBDBD";
+          ctx.fillRect(0, 0, grid.w * gridSize, grid.h * gridSize);
+          
+          //Grid
+          ctx.fillStyle = "#000000";
+          for(var x = 0; x <= grid.w; x++) {
+            ctx.moveTo(x * gridSize, 0);
+            ctx.lineTo(x * gridSize, grid.h * gridSize);
+            ctx.stroke();
+          }
+          for(var y = 0; y <= grid.h; y++) {
+            ctx.moveTo(0, y * gridSize);
+            ctx.lineTo(grid.w * gridSize, y * gridSize);
+            ctx.stroke();
+          }
+
+          //Cells
+          for(var x = 0; x < grid.w; x++) {
+            for(var y = 0; y < grid.h; y++) {
+              var c = grid.cells[x][y];
+              if(c.color == "#FFFFFF") continue;
+              ctx.beginPath();
+              ctx.fillStyle = c.color;        
+              ctx.arc(x * gridSize + gridSize / 2, y * gridSize + gridSize / 2,gridSize / 2 - 2,0,2*Math.PI);
+              ctx.fill(); 
+            }
+          }
+        }
+      });
+    </script>
+    <canvas id="canvas"></canvas>
+    <div>
+      <ul id="players">
+        
+      </ul>
+    </div>
+    <p>Check the console...</p>
+  </body>
+</html>

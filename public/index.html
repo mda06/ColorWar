@@ -29,14 +29,24 @@
             x:parseInt(mousePos.x / gridSize), 
             y:parseInt(mousePos.y / gridSize)
           };
+          var cell = grid.cells[play.x][play.y];
           socket.emit("play", play);
         }, false);
+
+        //Grid
 
         socket.on('initgrid', function(gr){
           grid = gr;
           canvas.width = grid.w * gridSize + 1;
           canvas.height = grid.h * gridSize + 1;
           drawGrid();
+        });
+
+        socket.on('cellupdate', function(cell){
+          if(cell.x >= 0 && cell.x < grid.w && cell.y >= 0 && cell.y < grid.h) {
+            grid.cells[cell.x][cell.y] = cell;
+            drawGrid();
+          }
         });
 
         //Players
@@ -49,27 +59,27 @@
           if(isMe(player.key)) drawMe();
           drawPlayers();
         });
+        socket.on('updateplayer', function(player){
+          players[player.key] = player;
+          if(isMe(player.key)) drawMe();
+          drawPlayers();
+        });
         socket.on('removeplayer', function(id){
           delete players[id];
           drawPlayers();
-        });
-
-        socket.on('cellupdate', function(cell){
-          if(cell.x >= 0 && cell.x < grid.w && cell.y >= 0 && cell.y < grid.h) {
-            grid.cells[cell.x][cell.y] = cell;
-            drawGrid();
-          }
         });
 
         function isMe(key) {
           return key == socket.id;
         }
 
+        //Draws
+
         function drawMe() {
           var player = players[socket.id];
           $text = $('<p>' + player.name + ', units: ' + player.qt + '</p>');
           $text.css('color', player.color);
-          $('#me').append($text);
+          $('#me').html($text);
         }
 
         function drawPlayers() {
@@ -105,14 +115,21 @@
           }
 
           //Cells
+          ctx.font = "15px Comic Sans MS";
           for(var x = 0; x < grid.w; x++) {
             for(var y = 0; y < grid.h; y++) {
               var c = grid.cells[x][y];
               if(c.color == "#FFFFFF") continue;
+              //Bg
               ctx.beginPath();
               ctx.fillStyle = c.color;        
               ctx.arc(x * gridSize + gridSize / 2, y * gridSize + gridSize / 2,gridSize / 2 - 2,0,2*Math.PI);
               ctx.fill(); 
+
+              //Qt
+              ctx.fillStyle = "#FFFFFF";
+              ctx.textAlign = "center";
+              ctx.fillText(c.qt, x * gridSize + gridSize / 2, y * gridSize + gridSize / 1.5);
             }
           }
         }
@@ -125,6 +142,14 @@
       <h2>Current players</h2>
       <ul id="players"></ul>
     </div>
-    <p>Check the console...</p>
+    <hr>
+    <div>
+      <h3>How to play</h3>
+      <p>Every player is listed here</p>
+      <p>The goal is to conquer the more cells, every cell has a quantity of units that can be fighted.</p>
+      <p>The first time you come you can select an empty cell to begin to play.</p>
+      <p>After your first cell you need to conquer your neihgbours, each time you attack you lose a certain amount of units</p>
+      <p>You can upgrade your cells</p>
+    </div>
   </body>
 </html>

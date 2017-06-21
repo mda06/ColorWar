@@ -6,6 +6,7 @@ class Player {
 		this.qt = qt;
 		this.color = color;
 		this.key = key;
+		this.hasTakedFirstCell = false;
 	}
 }
 

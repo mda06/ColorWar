@@ -11,7 +11,7 @@
         var canvas = document.getElementById('canvas');
         var socket = io();
         var grid = null;
-        var players = null;
+        var players = {};
         var gridSize = 30;
 
         function getMousePos(canvas, evt) {
@@ -45,7 +45,8 @@
           drawPlayers();
         });
         socket.on('addplayer', function(player){
-          players[player.id] = player;
+          players[player.key] = player;
+          if(isMe(player.key)) drawMe();
           drawPlayers();
         });
         socket.on('removeplayer', function(id){
@@ -60,11 +61,26 @@
           }
         });
 
+        function isMe(key) {
+          return key == socket.id;
+        }
+
+        function drawMe() {
+          var player = players[socket.id];
+          $text = $('<p>' + player.name + ', units: ' + player.qt + '</p>');
+          $text.css('color', player.color);
+          $('#me').append($text);
+        }
+
         function drawPlayers() {
           if(players == null || players == undefined) return;
           $('#players').html('');
           for(var key in players) {
-              $('#players').append('<li>' + players[key].name + '</li>');
+            if(isMe(key)) continue;
+            var player = players[key];
+            $li = $('<li>' + player.name + ', units: ' + player.qt + '</li>');
+            $li.css('color', player.color);
+            $('#players').append($li);
           };
         }
 
@@ -104,9 +120,10 @@
     </script>
     <canvas id="canvas"></canvas>
     <div>
-      <ul id="players">
-        
-      </ul>
+      <h1>You</h1>
+      <div id="me"></div>
+      <h2>Current players</h2>
+      <ul id="players"></ul>
     </div>
     <p>Check the console...</p>
   </body>

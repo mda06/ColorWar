@@ -16,9 +16,9 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
 	console.log('user ' + socket.id + ' connected');
 	//Add all the players to the new player
-	socket.emit('initgrid', grid);
+	io.sockets.sockets[socket.id].emit('initgrid', grid);
 	//Init grid the the new player
-	socket.emit('initplayers', players);
+	io.sockets.sockets[socket.id].emit('initplayers', players);
 
 	players[socket.id] = new Player("anonymous", 15, grid.getRandomColor(), socket.id);
 	//Add the current player to all players
@@ -38,7 +38,10 @@ io.on('connection', function(socket){
 		console.log('user ' + socket.id + ' disconnected');
 		io.emit('removeplayer', socket.id);
 		delete players[socket.id];
+		console.log('Players: ' + Object.keys(players).length);
 	});
+
+	console.log('Players: ' + Object.keys(players).length);
 });
 
 http.listen(3000, function(){

@@ -43,6 +43,9 @@ io.on('connection', function(socket){
 				//Right
 				if(play.x + 1 < grid.w && grid.cells[play.x+1][play.y].color == player.color) 
 					canPlay = true;
+				//Increase our first cell
+				if(grid.cells[play.x][play.y].color == player.color)
+					canPlay = true;
 
 				if(!canPlay) {
 					console.log(play.id + " is trying to play where he doesn't have a neighbours");

@@ -77,6 +77,7 @@ io.on('connection', function(socket){
 					//Check whatever player has more, less of equals qt than the cell
 					if(cell.qt < player.qt) {
 						player.qt -= cell.qt;
+						cell.qt = 1;
 						cell.color = player.color;
 					} else if(cell.qt > player.qt) {
 						player.qt = 0;

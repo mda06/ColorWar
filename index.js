@@ -22,6 +22,7 @@ io.on('connection', function(socket){
 	players[socket.id] = new Player("anonymous", 15, grid.getRandomColor(), socket.id);
 	//Add the current player to all players
 	io.emit('addplayer', players[socket.id]);
+	io.emit('changename', {name:players[socket.id].name, id:socket.id});
 
 	socket.on('play', function(play) {
 		var player = players[play.id];
@@ -86,6 +87,13 @@ io.on('connection', function(socket){
 			io.emit('updateplayer', player);
 			io.emit('cellupdate', cell);
 		}
+	});
+
+	socket.on("changename", function(data) {
+		var player = players[data.id];
+		if(player == null) return;
+		player.name = data.name;
+		io.emit('changename', data);
 	});
 
 	setInterval(function() {

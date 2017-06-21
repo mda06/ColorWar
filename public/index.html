@@ -14,6 +14,7 @@
         var players = {};
         var gridSize = 30;
 
+        //Events
         function getMousePos(canvas, evt) {
           var rect = canvas.getBoundingClientRect();
           return {
@@ -33,8 +34,11 @@
           socket.emit("play", play);
         }, false);
 
-        //Grid
+        $('#changename').on('click', function() {
+          socket.emit("changename", {name:$('#name').val(), id:socket.id});
+        });
 
+        //Grid
         socket.on('initgrid', function(gr){
           grid = gr;
           canvas.width = grid.w * gridSize + 1;
@@ -69,17 +73,24 @@
           drawPlayers();
         });
 
+        socket.on("changename", function(data) {
+          var player = players[data.id];
+          if(player == null) return;
+          player.name = data.name;
+          if(isMe(player.key)) 
+            $('#name').val(player.name);
+          drawPlayers();
+        });
+
         function isMe(key) {
           return key == socket.id;
         }
 
         //Draws
-
         function drawMe() {
           var player = players[socket.id];
-          $text = $('<p>' + player.name + ', units: ' + player.qt + '</p>');
-          $text.css('color', player.color);
-          $('#me').html($text);
+          $('#units').css('color', player.color);
+          $('#units').html(player.qt);
         }
 
         function drawPlayers() {
@@ -138,7 +149,9 @@
     <canvas id="canvas"></canvas>
     <div>
       <h1>You</h1>
-      <div id="me"></div>
+      <input type="text" id="name">
+      <button id="changename">Change name</button>
+      <p>You have <span id="units">0</span> units</p>
       <h2>Current players</h2>
       <ul id="players"></ul>
     </div>

@@ -104,10 +104,17 @@ io.on('connection', function(socket){
 	setInterval(function() {
 		for(var key in players) {
             var player = players[key];
-            player.qt++;
+            var qt = 0;
+            for(var x = 0; x < grid.w; x++) {
+            	for(var y = 0; y < grid.h; y++) {
+            		if(grid.cells[x][y].color == player.color)
+	            		qt++;
+            	}
+            }
+            player.qt += parseInt(qt / 4);
 			io.emit('updateplayer', player);
         };
-	}, 5000);
+	}, 10000);
 
 	socket.on('disconnect', function(){
 		console.log('user ' + socket.id + ' disconnected');

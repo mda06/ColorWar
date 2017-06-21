@@ -23,6 +23,42 @@
           };
         }
 
+        canvas.addEventListener('mousemove', function(evt) {
+          /*var mousePos = getMousePos(canvas, evt);
+          var x = parseInt(mousePos.x / gridSize);
+          var y = parseInt(mousePos.y / gridSize);
+          var cell = grid.cells[x][y];
+          var ctx = canvas.getContext("2d");
+          var player = players[socket.id];
+
+          drawGrid();
+
+          if(!player.hasTakedFirstCell) {
+            if(cell.color == "#FFFFFF") {
+              ctx.fillStyle = "#FF00AA";
+            } else {
+              ctx.fillStyle = "#F00";
+            }
+          } else {
+            //Empty
+            if(cell.color == "#FFFFFF") {
+              ctx.fillStyle = "#00FFAA";
+            } 
+            //His cell
+            else if(cell.color == player.color) {
+              ctx.fillStyle = "#F3088A";
+            } 
+            //Other cell
+            else {
+              ctx.fillStyle = "#F8A";
+            }
+          } 
+
+          ctx.beginPath();       
+          ctx.arc(x * gridSize + gridSize / 2, y * gridSize + gridSize / 2,gridSize / 2 - 2,0,2*Math.PI);
+          ctx.fill(); */
+        }, false);
+
         canvas.addEventListener('click', function(evt) {
           var mousePos = getMousePos(canvas, evt);
           var play = {
@@ -30,7 +66,6 @@
             x:parseInt(mousePos.x / gridSize), 
             y:parseInt(mousePos.y / gridSize)
           };
-          var cell = grid.cells[play.x][play.y];
           socket.emit("play", play);
         }, false);
 

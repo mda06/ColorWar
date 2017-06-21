@@ -80,6 +80,7 @@ io.on('connection', function(socket){
 						cell.qt = 1;
 						cell.color = player.color;
 					} else if(cell.qt > player.qt) {
+						cell.qt -= player.qt;
 						player.qt = 0;
 					} else {
 						cell.color = "#FFFFFF";
